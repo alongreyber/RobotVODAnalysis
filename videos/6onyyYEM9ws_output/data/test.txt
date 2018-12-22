@@ -1,0 +1,3 @@
+data/obj/6onyyYEM9ws_frame_1.jpg
+data/obj/6onyyYEM9ws_frame_13.jpg
+data/obj/6onyyYEM9ws_frame_15.jpg
