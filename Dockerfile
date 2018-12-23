@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-base-ubuntu16.04
+FROM nvidia/cuda:9.1-devel-ubuntu16.04
 
 # working directory
 WORKDIR /yolo
@@ -18,4 +18,4 @@ RUN \
 WORKDIR /code
 ADD train.sh .
 # defaults command
-ENTRYPOINT ["/bin/sh -c /code/train.sh"]
+#ENTRYPOINT ["/bin/bash"]
