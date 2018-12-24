@@ -1,11 +1,5 @@
 !_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/
-base_url	/home/alon/robot_analysis/get_videos.py	/^base_url = 'http:\/\/www.thebluealliance.com\/api\/v3\/'$/;"	v	language:Python
-data	/home/alon/robot_analysis/get_videos.py	/^    data = r.json()$/;"	v	language:Python
-events	/home/alon/robot_analysis/get_videos.py	/^events = ['2018qcmo', '2018isde1', '2018mawor', '2018onbar', '2018inmis']$/;"	v	language:Python
-headers	/home/alon/robot_analysis/get_videos.py	/^headers = {'X-TBA-Auth-Key' : 'HmLM0gRxFg9TSNcMRNoDUZBVp105U5TrYExLLckCuivxQarsvj3UBOqXBSNQ3vbX'}$/;"	v	language:Python
-i	/home/alon/robot_analysis/get_videos.py	/^    i = 0$/;"	v	language:Python
-j	/home/alon/robot_analysis/get_videos.py	/^        j = 0$/;"	v	language:Python
-num_matches	/home/alon/robot_analysis/get_videos.py	/^num_matches = 1$/;"	v	language:Python
-num_videos	/home/alon/robot_analysis/get_videos.py	/^num_videos = 1$/;"	v	language:Python
-r	/home/alon/robot_analysis/get_videos.py	/^    r = requests.get(base_url + 'event\/' + e + '\/matches', headers=headers)$/;"	v	language:Python
-video_url	/home/alon/robot_analysis/get_videos.py	/^            video_url = "http:\/\/youtu.be\/" + video['key']$/;"	v	language:Python
+cli	/home/alon/robot_analysis/robot_analysis.py	/^def cli():$/;"	f	language:Python
+detect	/home/alon/robot_analysis/robot_analysis.py	/^def detect(directory):$/;"	f	language:Python
+setup	/home/alon/robot_analysis/robot_analysis.py	/^def setup():$/;"	f	language:Python
+train	/home/alon/robot_analysis/robot_analysis.py	/^def train(directory):$/;"	f	language:Python
