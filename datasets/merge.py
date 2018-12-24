@@ -2,9 +2,11 @@ import click
 import os
 import shutil
 from distutils.dir_util import copy_tree
+import runpy
 
 @click.command()
 def merge():
+    base_directory = os.getcwd()
     os.chdir('data/')
     # Create output directory structure
     output = os.getcwd() + '/yolo_input/'
@@ -42,5 +44,11 @@ def merge():
                 for line in f:
                     f1.write(line) 
 
+    # Generate labels using script in darknet
+    os.mkdir(output_data + 'labels/')
+    os.chdir(output_data + 'labels/')
+    runpy.run_path(base_directory + '/darknet/data/labels/make_labels.py')
+
 if __name__ == '__main__':
     merge()
+
