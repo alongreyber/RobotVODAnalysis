@@ -2,6 +2,7 @@
 *.mp4
 *.weights
 *.jpg
+*.png
 tags
 darknet/
 venv/
