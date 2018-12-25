@@ -12,6 +12,8 @@ def merge():
     output = os.getcwd() + '/yolo_input/'
     output_data = output + '/data/'
     output_obj = output_data + 'obj/'
+    if os.path.exists(output):
+        shutil.rmtree(output)
     os.mkdir(output)
     os.mkdir(output_data)
     os.mkdir(output_obj)
@@ -35,14 +37,14 @@ def merge():
         # Merge test and train files
         with open(os.path.join(source, "data/train.txt")) as f:
             with open(output_data + '/train.txt', "a+") as f1:
-                f1.write('\n')
                 for line in f:
                     f1.write(line) 
+                f1.write('\n')
         with open(os.path.join(source, "data/test.txt")) as f:
             with open(output_data + '/test.txt', "a+") as f1:
-                f1.write('\n')
                 for line in f:
                     f1.write(line) 
+                f1.write('\n')
 
     # Generate labels using script in darknet
     os.mkdir(output_data + 'labels/')
