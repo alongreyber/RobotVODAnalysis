@@ -19,7 +19,7 @@ def setup(cuda, opencv):
     
     # Download and build darknet tool
     if not os.path.isdir("./darknet"):
-        os.system("git clone https://github.com/pjreddie/darknet")
+        os.system("git clone https://github.com/AlexeyAB/darknet.git")
         click.echo("Building Darknet")
         if cuda:
             click.echo("With CUDA GPU")
