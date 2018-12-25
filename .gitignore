@@ -6,5 +6,4 @@
 tags
 darknet/
 venv/
-data/*_output/
 data/yolo_input/
