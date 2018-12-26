@@ -5,3 +5,4 @@ tags
 darknet/
 venv/
 data/yolo_input/
+models/

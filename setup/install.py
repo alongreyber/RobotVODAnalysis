@@ -21,6 +21,8 @@ def setup(cuda, opencv):
     if not os.path.isdir("./darknet"):
         os.system("git clone https://github.com/AlexeyAB/darknet.git")
         click.echo("Building Darknet")
+        # Enable building .so files
+        os.system("sed -i 's/LIBSO=0/LIBSO=1/g' darknet/Makefile")
         if cuda:
             click.echo("With CUDA GPU")
             os.system("sed -i 's/GPU=0/GPU=1/g' darknet/Makefile")
