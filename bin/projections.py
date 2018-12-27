@@ -18,11 +18,6 @@ weight_path = '../../models/yolo-obj.backup'
 performDetect = darknet['performDetect']
 performDetect(configPath=config_path, metaPath=meta_path, weightPath=weight_path, showImage=False, initOnly=True)
 
-def printCoordinates(event, x, y, flags, param):
-    if event == cv.EVENT_LBUTTONDOWN:
-        print("X: " + str(x))
-        print("Y: " + str(y))
-
 def create_rect(tl, tr, br, bl):
 	rect = np.zeros((4, 2), dtype = "float32")
 	rect[0] = tl
@@ -32,45 +27,45 @@ def create_rect(tl, tr, br, bl):
 	return rect
 
 
+
+def get_perspective_transform_matrix(tl, tr, br, bl):
+    # compute the width of the new image, which will be the
+    # maximum distance between bottom-right and bottom-left
+    # x-coordiates or the top-right and top-left x-coordinates
+    widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
+    widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
+    maxWidth = max(int(widthA), int(widthB))
+
+    # compute the height of the new image, which will be the
+    # maximum distance between the top-right and bottom-right
+    # y-coordinates or the top-left and bottom-left y-coordinates
+    heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
+    heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
+    maxHeight = max(int(heightA), int(heightB))
+
+    # now that we have the dimensions of the new image, construct
+    # the set of destination points to obtain a "birds eye view",
+    # (i.e. top-down view) of the image, again specifying points
+    # in the top-left, top-right, bottom-right, and bottom-left
+    # order
+    dst = np.array([
+            [0, 0],
+            [maxWidth - 1, 0],
+            [maxWidth - 1, maxHeight - 1],
+            [0, maxHeight - 1]], dtype = "float32")
+
+    # compute the perspective transform matrix
+    M = cv.getPerspectiveTransform(create_rect(tl,tr,br,bl), dst)
+    return M, maxWidth, maxHeight
+
 def four_point_transform(image, tl, tr, br, bl):
-	# compute the width of the new image, which will be the
-	# maximum distance between bottom-right and bottom-left
-	# x-coordiates or the top-right and top-left x-coordinates
-	widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
-	widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
-	maxWidth = max(int(widthA), int(widthB))
-
-	# compute the height of the new image, which will be the
-	# maximum distance between the top-right and bottom-right
-	# y-coordinates or the top-left and bottom-left y-coordinates
-	heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
-	heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
-	maxHeight = max(int(heightA), int(heightB))
-
-	# now that we have the dimensions of the new image, construct
-	# the set of destination points to obtain a "birds eye view",
-	# (i.e. top-down view) of the image, again specifying points
-	# in the top-left, top-right, bottom-right, and bottom-left
-	# order
-	dst = np.array([
-		[0, 0],
-		[maxWidth - 1, 0],
-		[maxWidth - 1, maxHeight - 1],
-		[0, maxHeight - 1]], dtype = "float32")
-
-	# compute the perspective transform matrix and then apply it
-	M = cv.getPerspectiveTransform(create_rect(tl,tr,br,bl), dst)
-	warped = cv.warpPerspective(image, M, (maxWidth, maxHeight))
-
-	# return the warped image
-	return warped
-
+    M, maxWidth, maxHeight = get_perspective_transform_matrix(tl,tr,br,bl)
+    warped = cv.warpPerspective(image, M, (maxWidth, maxHeight))
+    return warped
 
 @click.argument('inputfile', type=click.Path())
 @click.command()
 def project(inputfile):
-    cv.namedWindow("image")
-    cv.setMouseCallback("image", printCoordinates)
     # Paths suck because darknet has to be run in the yolo_input folder
     inputfile = os.path.join('../..', inputfile)
     cap = cv.VideoCapture(inputfile)
@@ -84,14 +79,28 @@ def project(inputfile):
 
     while cap.isOpened():
         ret,frame = cap.read()
-        cv.imshow('image',frame)
         cv.imwrite(frame_file.name, frame)
 
-        # Run detection
-        # detection = performDetect(imagePath=frame_file.name, configPath=config_path, metaPath=meta_path, weightPath=weight_path, showImage=False)
-        # print(detection)
-
+        # Unwarp image
         warped = four_point_transform(frame, (276,360),(1015,381),(1274,603),(6,551))
+        transform_matrix, _, _ = get_perspective_transform_matrix((276,360),(1015,381),(1274,603),(6,551))
+
+        # Run detection
+        detection = performDetect(imagePath=frame_file.name, configPath=config_path, metaPath=meta_path, weightPath=weight_path, showImage=False)
+        for detected in detection:
+            rect = detected[2]
+            tl = (int(rect[0] - rect[2]/2),int(rect[1] - rect[3]/2))
+            br = (int(rect[0] + rect[2]/2),int(rect[1] + rect[3]/2))
+            cv.rectangle(frame,tl,br,(0,255,0),3)
+
+            a = np.array([tl, br], dtype='float32')
+            a = np.array([a])
+            transformed_points = cv.perspectiveTransform(a, transform_matrix)
+            tl_warped = (transformed_points[0][0][0], transformed_points[0][0][1])
+            br_warped = (transformed_points[0][1][0], transformed_points[0][1][1])
+            cv.rectangle(warped,tl_warped,br_warped, (0,255,0), 3)
+
+        cv.imshow('image',frame)
         cv.imshow('warped',warped)
 
         count = count + 1
