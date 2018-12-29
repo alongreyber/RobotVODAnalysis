@@ -27,7 +27,6 @@ def create_rect(tl, tr, br, bl):
 	return rect
 
 
-
 def get_perspective_transform_matrix(tl, tr, br, bl):
     # compute the width of the new image, which will be the
     # maximum distance between bottom-right and bottom-left
@@ -90,15 +89,18 @@ def project(inputfile):
         for detected in detection:
             rect = detected[2]
             tl = (int(rect[0] - rect[2]/2),int(rect[1] - rect[3]/2))
+            tr = (int(rect[0] + rect[2]/2),int(rect[1] - rect[3]/2))
+            bl = (int(rect[0] - rect[2]/2),int(rect[1] + rect[3]/2))
             br = (int(rect[0] + rect[2]/2),int(rect[1] + rect[3]/2))
             cv.rectangle(frame,tl,br,(0,255,0),3)
 
-            a = np.array([tl, br], dtype='float32')
+            a = np.array([tl,tr,br,bl], dtype='float32')
             a = np.array([a])
             transformed_points = cv.perspectiveTransform(a, transform_matrix)
-            tl_warped = (transformed_points[0][0][0], transformed_points[0][0][1])
-            br_warped = (transformed_points[0][1][0], transformed_points[0][1][1])
-            cv.rectangle(warped,tl_warped,br_warped, (0,255,0), 3)
+            transformed_points = transformed_points[0]
+            transformed_points.reshape((-1, 1, 2))
+            print(transformed_points.astype(int))
+            cv.polylines(warped, np.int32([transformed_points]), True, (0,255,0), 3)
 
         cv.imshow('image',frame)
         cv.imshow('warped',warped)
